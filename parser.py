@@ -21,13 +21,13 @@ The file follows the following format:
 
          sphere: add a sphere to the POLYGON matrix -
                  takes 4 arguemnts (cx, cy, cz, r)
-         torus: add a torus to the POLYGON matrix - 
+         torus: add a torus to the POLYGON matrix -
                 takes 5 arguemnts (cx, cy, cz, r1, r2)
-         box: add a rectangular prism to the POLYGON matrix - 
-              takes 6 arguemnts (x, y, z, width, height, depth)	    
+         box: add a rectangular prism to the POLYGON matrix -
+              takes 6 arguemnts (x, y, z, width, height, depth)
          clear: clears the edge and POLYGON matrices
 
-	 circle: add a circle to the edge matrix - 
+	 circle: add a circle to the edge matrix -
 	         takes 4 arguments (cx, cy, cz, r)
 	 hermite: add a hermite curve to the edge matrix -
 	          takes 8 arguments (x0, y0, x1, y1, rx0, ry0, rx1, ry1)
@@ -44,7 +44,8 @@ The file follows the following format:
                takes 3 arguments (tx, ty, tz)
          rotate: create a rotation matrix,
                  then multiply the transform matrix by the rotation matrix -
-                 takes 2 arguments (axis, theta) axis should be x y or z
+                 takes 2 arguments (a -- adds a single element to the end of the list
+                 axis should be x y or z
          apply: apply the current transformation matrix to the edge and POLYGON matrices
          display: clear the screen, then
                   draw the lines of the edge and POLYGON matrices to the screen
@@ -57,9 +58,11 @@ The file follows the following format:
 
 See the file script for an example of the file format
 """
-ARG_COMMANDS = [ 'box', 'sphere', 'torus', 'circle', 'bezier', 'hermite', 'line', 'scale', 'move', 'rotate', 'save' ]
+ARG_COMMANDS = ['push', 'pop', 'box', 'sphere', 'torus', 'circle', 'bezier', 'hermite', 'line', 'scale', 'move', 'rotate', 'save' ]
 
 def parse_file( fname, edges, polygons, csystems, screen, color ):
+
+    temp = []
 
     f = open(fname)
     lines = f.readlines()
@@ -76,23 +79,42 @@ def parse_file( fname, edges, polygons, csystems, screen, color ):
             c+= 1
             args = lines[c].strip().split(' ')
 
-        if line == 'sphere':
+        if line == 'push':
+            copy = [a[:] for a in csystems[-1]]
+            csystems.append(copy)
+
+        elif line == 'pop':
+            csystems.pop()
+
+        elif line == 'sphere':
             #print 'SPHERE\t' + str(args)
-            add_sphere(polygons,
+            add_sphere(temp,
                        float(args[0]), float(args[1]), float(args[2]),
                        float(args[3]), step_3d)
 
+            matrix_mult(csystems[-1], temp)
+            draw_polygons(temp, screen, color)
+            temp = []
+
         elif line == 'torus':
             #print 'TORUS\t' + str(args)
-            add_torus(polygons,
+            add_torus(temp,
                       float(args[0]), float(args[1]), float(args[2]),
                       float(args[3]), float(args[4]), step_3d)
 
+            matrix_mult(csystems[-1], temp)
+            draw_polygons(temp, screen, color)
+            temp = []
+
         elif line == 'box':
             #print 'BOX\t' + str(args)
-            add_box(polygons,
+            add_box(temp,
                     float(args[0]), float(args[1]), float(args[2]),
                     float(args[3]), float(args[4]), float(args[5]))
+
+            matrix_mult(csystems[-1], temp)
+            draw_polygons(temp, screen, color)
+            temp = []
 
         elif line == 'circle':
             #print 'CIRCLE\t' + str(args)
@@ -100,24 +122,36 @@ def parse_file( fname, edges, polygons, csystems, screen, color ):
                        float(args[0]), float(args[1]), float(args[2]),
                        float(args[3]), step)
 
+            matrix_mult(csystems[-1], temp)
+            draw_lines(temp, screen, color)
+            temp = []
+
         elif line == 'hermite' or line == 'bezier':
             #print 'curve\t' + line + ": " + str(args)
-            add_curve(edges,
+            add_curve(temp,
                       float(args[0]), float(args[1]),
                       float(args[2]), float(args[3]),
                       float(args[4]), float(args[5]),
                       float(args[6]), float(args[7]),
-                      step, line)
+
+            matrix_mult(csystems[-1], temp)
+            draw_lines(temp, screen, color)
+            temp = []
 
         elif line == 'line':
             #print 'LINE\t' + str(args)
 
-            add_edge( edges,
+            add_edge( temp,
                       float(args[0]), float(args[1]), float(args[2]),
                       float(args[3]), float(args[4]), float(args[5]) )
 
+            matrix_mult(csystems[-1], temp)
+            draw_lines(temp, screen, color)
+            temp = []
+
         elif line == 'scale':
             #print 'SCALE\t' + str(args)
+            csystems
             t = make_scale(float(args[0]), float(args[1]), float(args[2]))
             matrix_mult(t, transform)
 
