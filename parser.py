@@ -74,6 +74,7 @@ def parse_file( fname, edges, polygons, csystems, screen, color ):
     while c < len(lines):
         line = lines[c].strip()
         #print ':' + line + ':'
+        transform = csystems[-1]
 
         if line in ARG_COMMANDS:
             c+= 1
@@ -92,7 +93,7 @@ def parse_file( fname, edges, polygons, csystems, screen, color ):
                        float(args[0]), float(args[1]), float(args[2]),
                        float(args[3]), step_3d)
 
-            matrix_mult(csystems[-1], temp)
+            matrix_mult(transform, temp)
             draw_polygons(temp, screen, color)
             temp = []
 
@@ -102,7 +103,7 @@ def parse_file( fname, edges, polygons, csystems, screen, color ):
                       float(args[0]), float(args[1]), float(args[2]),
                       float(args[3]), float(args[4]), step_3d)
 
-            matrix_mult(csystems[-1], temp)
+            matrix_mult(transform, temp)
             draw_polygons(temp, screen, color)
             temp = []
 
@@ -112,7 +113,7 @@ def parse_file( fname, edges, polygons, csystems, screen, color ):
                     float(args[0]), float(args[1]), float(args[2]),
                     float(args[3]), float(args[4]), float(args[5]))
 
-            matrix_mult(csystems[-1], temp)
+            matrix_mult(transform, temp)
             draw_polygons(temp, screen, color)
             temp = []
 
@@ -122,7 +123,7 @@ def parse_file( fname, edges, polygons, csystems, screen, color ):
                        float(args[0]), float(args[1]), float(args[2]),
                        float(args[3]), step)
 
-            matrix_mult(csystems[-1], temp)
+            matrix_mult(transform, temp)
             draw_lines(temp, screen, color)
             temp = []
 
@@ -133,8 +134,9 @@ def parse_file( fname, edges, polygons, csystems, screen, color ):
                       float(args[2]), float(args[3]),
                       float(args[4]), float(args[5]),
                       float(args[6]), float(args[7]),
+                      step, line)
 
-            matrix_mult(csystems[-1], temp)
+            matrix_mult(transform, temp)
             draw_lines(temp, screen, color)
             temp = []
 
@@ -145,13 +147,12 @@ def parse_file( fname, edges, polygons, csystems, screen, color ):
                       float(args[0]), float(args[1]), float(args[2]),
                       float(args[3]), float(args[4]), float(args[5]) )
 
-            matrix_mult(csystems[-1], temp)
+            matrix_mult(transform, temp)
             draw_lines(temp, screen, color)
             temp = []
 
         elif line == 'scale':
             #print 'SCALE\t' + str(args)
-            csystems
             t = make_scale(float(args[0]), float(args[1]), float(args[2]))
             matrix_mult(t, transform)
 
@@ -176,7 +177,8 @@ def parse_file( fname, edges, polygons, csystems, screen, color ):
             ident(transform)
 
         elif line == 'apply':
-            matrix_mult( transform, edges )
+
+            matrix_mult( transform, edges)
             matrix_mult( transform, polygons )
 
         elif line == 'clear':

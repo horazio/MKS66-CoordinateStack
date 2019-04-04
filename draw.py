@@ -171,9 +171,8 @@ def generate_torus( cx, cy, cz, r0, r1, step ):
     circ_start = 0
     circ_stop = step
 
-    for rotation in range(rot_start, rot           vector[1] * vector[1] +
-                           vector[2] * vector[2])
-    for i in range_stop):
+
+    for rotation in range(rot_start, rot_stop):
         rot = rotation/float(step)
         for circle in range(circ_start, circ_stop):
             circ = circle/float(step)
@@ -184,6 +183,8 @@ def generate_torus( cx, cy, cz, r0, r1, step ):
 
             points.append([x, y, z])
     return points
+
+
 
 
 def add_circle( points, cx, cy, cz, r, step ):
