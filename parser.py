@@ -58,7 +58,7 @@ The file follows the following format:
 
 See the file script for an example of the file format
 """
-ARG_COMMANDS = ['push', 'pop', 'box', 'sphere', 'torus', 'circle', 'bezier', 'hermite', 'line', 'scale', 'move', 'rotate', 'save' ]
+ARG_COMMANDS = ['box', 'sphere', 'torus', 'circle', 'bezier', 'hermite', 'line', 'scale', 'move', 'rotate', 'save' ]
 
 def parse_file( fname, edges, polygons, csystems, screen, color ):
 
@@ -81,11 +81,12 @@ def parse_file( fname, edges, polygons, csystems, screen, color ):
             args = lines[c].strip().split(' ')
 
         if line == 'push':
-            copy = [a[:] for a in csystems[-1]]
+            copy = [a[:] for a in transform]
             csystems.append(copy)
 
         elif line == 'pop':
             csystems.pop()
+
 
         elif line == 'sphere':
             #print 'SPHERE\t' + str(args)
@@ -112,6 +113,7 @@ def parse_file( fname, edges, polygons, csystems, screen, color ):
             add_box(temp,
                     float(args[0]), float(args[1]), float(args[2]),
                     float(args[3]), float(args[4]), float(args[5]))
+
 
 
 
@@ -173,7 +175,9 @@ def parse_file( fname, edges, polygons, csystems, screen, color ):
                 t = make_rotY(theta)
             else:
                 t = make_rotZ(theta)
+
             matrix_mult(t, transform)
+
 
         elif line == 'ident':
             ident(transform)
